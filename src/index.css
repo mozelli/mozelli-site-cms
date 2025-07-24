@@ -1,7 +1,11 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @import "tw-animate-css";
-
 @custom-variant dark (&:is(.dark *));
+
+.ProseMirror:focus {
+  @apply outline-none ring-0 list-disc;
+}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
