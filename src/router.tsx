@@ -6,6 +6,7 @@ import Dashboard from "./Dashboard";
 import PostList from "./Dashboard/Posts/PostList";
 import Home from "./Dashboard/Home";
 import NewPost from "./Dashboard/Posts/NewPost";
+import { EditPost } from "./Dashboard/Posts/EditPost";
 
 const AppRoutes = () => {
   return (
@@ -25,6 +26,7 @@ const AppRoutes = () => {
           <Route element={<Home />} path="/dashboard" />
           <Route element={<PostList />} path="/dashboard/posts" />
           <Route element={<NewPost />} path="/dashboard/posts/newpost" />
+          <Route element={<EditPost />} path="/dashboard/posts/edit_post/:id" />
         </Route>
       </Routes>
     </BrowserRouter>
