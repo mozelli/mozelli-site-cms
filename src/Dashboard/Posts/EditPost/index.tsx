@@ -7,9 +7,9 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { postSchema, type PostSchema } from "../schema";
 import { getPostById } from "./getPosts";
+import { Button } from "../../../../srccomponents/ui/button";
 
 import {
-  Save,
   Bold,
   Italic,
   Heading1,
@@ -19,10 +19,9 @@ import {
   ImagePlus,
 } from "lucide-react";
 
-import { Button } from "../../../../srccomponents/ui/button";
 import { UpdatePost } from "./updatePost";
 
-export function EditPost() {
+export default function EditPost() {
   const { id } = useParams<{ id: string }>();
   const postId = id ? id : "";
   const [loading, setLoading] = useState(true);
@@ -31,6 +30,7 @@ export function EditPost() {
     register,
     setValue,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<PostSchema>({
     resolver: zodResolver(postSchema),
@@ -52,6 +52,9 @@ export function EditPost() {
       if (post) {
         setValue("title", post.title);
         setValue("content", post.content);
+        setValue("author", post.author);
+        setValue("status", post.status);
+        setValue("tags", post.tags || []);
         editor?.commands.setContent(post.content);
       }
       setLoading(false);
@@ -79,13 +82,16 @@ export function EditPost() {
     alert("Alterações salvas!");
   };
 
+  const rawTags = watch("tags");
+  const tags = Array.isArray(rawTags) ? rawTags : [];
+
   if (loading) return <p className="text-center">Carregando post...</p>;
 
   return (
     <div className="">
       <div className="p-4 border rounded w-full shadow flex">
         <h1 className="text-2xl font-bold text-neutral-700 w-full">
-          Novo Post
+          Editar post
         </h1>
       </div>
 
@@ -167,11 +173,67 @@ export function EditPost() {
               <EditorContent editor={editor} className="prose prose-neutral" />
             </div>
           </div>
+          <div className="mt-2 p-2">
+            <label
+              htmlFor="author"
+              className="block text-sm font-medium text-neutral-700"
+            >
+              Autor
+            </label>
+            <input
+              {...register("author")}
+              type="text"
+              id="author"
+              className="border rounded p-2 w-full"
+            />
+          </div>
+          <div className="mt-2 p-2">
+            <label
+              htmlFor="status"
+              className="block text-sm font-medium text-neutral-700"
+            >
+              Status
+            </label>
+            <select
+              {...register("status")}
+              id="status"
+              defaultValue="scratch"
+              className="border rounded p-2 w-full"
+            >
+              <option value="published">Publicado</option>
+              <option value="scratch">Rascunho</option>
+              <option value="trash">Lixeira</option>
+            </select>
+          </div>
+          <div className="mt-2 p-2">
+            <label
+              htmlFor="tags"
+              className="block text-sm font-medium text-neutral-700"
+            >
+              Tags (separadas por vírgula)
+            </label>
+            <input
+              {...register("tags")}
+              type="text"
+              id="tags"
+              placeholder="ex: react, firebase, blog"
+              defaultValue={tags.join(", ")}
+              className="border rounded p-2 w-full"
+              onBlur={(e) => {
+                const value = e.target.value;
+                const tagsArray = value
+                  .split(",")
+                  .map((tag) => tag.trim())
+                  .filter(Boolean);
+                setValue("tags", tagsArray); // você precisa usar useFormContext ou passar setValue
+              }}
+            />
+          </div>
           <Button
             type="submit"
             className="bg-green-700 hover:bg-green-800 text-neutral-50 font-medium hover:cursor-pointer mt-2"
           >
-            Atualizar
+            Salvar alterações
           </Button>
         </form>
       </div>

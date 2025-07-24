@@ -6,7 +6,7 @@ import Dashboard from "./Dashboard";
 import PostList from "./Dashboard/Posts/PostList";
 import Home from "./Dashboard/Home";
 import NewPost from "./Dashboard/Posts/NewPost";
-import { EditPost } from "./Dashboard/Posts/EditPost";
+import EditPost from "./Dashboard/Posts/EditPost";
 
 const AppRoutes = () => {
   return (

@@ -1,12 +1,7 @@
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-
-//import { saveData } from "./saveData";
+import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "../../../../srccomponents/ui/button";
 import {
-  Save,
   Bold,
   Italic,
   Heading1,
@@ -19,29 +14,23 @@ import {
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
-//import { JSONContent } from '@tiptap/react';
 
 import { app } from "@/firebase";
 import { getFirestore } from "firebase/firestore";
 import { addDoc, collection, DocumentReference } from "firebase/firestore";
-
-const postSchema = z.object({
-  content: z.any(),
-  title: z.string().min(3),
-});
-
-type PostData = z.infer<typeof postSchema>;
+import { type PostSchema, postSchema } from "../schema";
 
 const NewPost = () => {
   const storage = getFirestore(app);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<PostData>({
+  const { register, handleSubmit, setValue } = useForm<PostSchema>({
     resolver: zodResolver(postSchema),
+    defaultValues: {
+      title: "",
+      author: "João Mozelli Neto",
+      status: "scratch",
+      tags: [],
+    },
   });
 
   const editor = useEditor({
@@ -54,21 +43,25 @@ const NewPost = () => {
   });
 
   async function savePost(
-    data: PostData
-  ): Promise<DocumentReference<PostData>> {
+    data: PostSchema
+  ): Promise<DocumentReference<PostSchema>> {
     try {
-      const docRef = await addDoc(collection(storage, "posts"), data);
+      const docRef = await addDoc(collection(storage, "posts"), {
+        ...data,
+        publishedAt: new Date(),
+      });
       console.log("Post salvo com ID:", docRef.id);
-      return docRef as DocumentReference<PostData>;
+      return docRef as DocumentReference<PostSchema>;
     } catch (error) {
       console.error("Erro ao salvar post:", error);
       throw error;
     }
   }
 
-  const submit = async (data: PostData) => {
-    const teste = editor?.getJSON();
-    data.content = teste;
+  const submit = async (data: PostSchema) => {
+    console.log("foi");
+    const json = editor?.getJSON();
+    data.content = json;
     try {
       await savePost(data);
       alert("Publicação salva com sucesso!");
@@ -85,10 +78,6 @@ const NewPost = () => {
         <h1 className="text-2xl font-bold text-neutral-700 w-full">
           Novo Post
         </h1>
-        <Button className="bg-green-700 hover:bg-green-800 text-neutral-50 font-medium hover:cursor-pointer">
-          <Save />
-          Publicar
-        </Button>
       </div>
 
       <div className="w-full mt-4">
@@ -168,6 +157,62 @@ const NewPost = () => {
             <div className="">
               <EditorContent editor={editor} className="prose prose-neutral" />
             </div>
+          </div>
+          <div className="mt-2 p-2">
+            <label
+              htmlFor="author"
+              className="block text-sm font-medium text-neutral-700"
+            >
+              Autor
+            </label>
+            <input
+              {...register("author")}
+              type="text"
+              id="author"
+              defaultValue="João Mozelli Neto"
+              className="border rounded p-2 w-full"
+            />
+          </div>
+          <div className="mt-2 p-2">
+            <label
+              htmlFor="status"
+              className="block text-sm font-medium text-neutral-700"
+            >
+              Status
+            </label>
+            <select
+              {...register("status")}
+              id="status"
+              defaultValue="scratch"
+              className="border rounded p-2 w-full"
+            >
+              <option value="published">Publicado</option>
+              <option value="scratch">Rascunho</option>
+              <option value="trash">Lixeira</option>
+            </select>
+          </div>
+          <div className="mt-2 p-2">
+            <label
+              htmlFor="tags"
+              className="block text-sm font-medium text-neutral-700"
+            >
+              Tags (separadas por vírgula)
+            </label>
+            <input
+              {...register("tags")}
+              type="text"
+              id="tags"
+              placeholder="ex: react, firebase, blog"
+              className="border rounded p-2 w-full"
+              onBlur={(e) => {
+                const value = e.target.value;
+                const tagsArray = value
+                  .split(",")
+                  .map((tag) => tag.trim())
+                  .filter(Boolean);
+                setValue("tags", tagsArray); // você precisa usar useFormContext ou passar setValue
+              }}
+            />
           </div>
           <button
             type="submit"
