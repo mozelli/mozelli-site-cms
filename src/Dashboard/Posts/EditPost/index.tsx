@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EditorContent, useEditor } from "@tiptap/react";
-
 import StarterKit from "@tiptap/starter-kit";
-import { postSchema, type PostSchema } from "../schema";
-import { getPostById } from "./getPosts";
 import { Button } from "../../../../srccomponents/ui/button";
-
 import {
   Bold,
   Italic,
@@ -19,7 +16,9 @@ import {
   ImagePlus,
 } from "lucide-react";
 
-import { UpdatePost } from "./updatePost";
+import { postSchema, type PostSchema } from "../schema";
+import GetPostsById from "@/services/GetPostsById";
+import UpdatePost from "@/services/UpdatePosts";
 
 export default function EditPost() {
   const { id } = useParams<{ id: string }>();
@@ -48,7 +47,7 @@ export default function EditPost() {
   useEffect(() => {
     async function loadPost() {
       setLoading(true);
-      const post = await getPostById(postId);
+      const post = await GetPostsById(postId);
       if (post) {
         setValue("title", post.title);
         setValue("content", post.content);

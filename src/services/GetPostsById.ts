@@ -1,8 +1,8 @@
 import { app } from "@/firebase";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
-import { type PostSchema } from "../schema";
+import { type PostSchema } from "@/Dashboard/Posts/schema";
 
-export async function getPostById(id: string): Promise<PostSchema | null> {
+const GetPostsById = async (id: string): Promise<PostSchema | null> => {
   const storage = getFirestore(app);
   const docRef = doc(storage, "posts", id);
   const docSnap = await getDoc(docRef);
@@ -13,4 +13,6 @@ export async function getPostById(id: string): Promise<PostSchema | null> {
     console.warn("Post não encontrado.");
     return null;
   }
-}
+};
+
+export default GetPostsById;

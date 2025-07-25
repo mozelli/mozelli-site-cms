@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Bold,
@@ -10,19 +9,14 @@ import {
   List,
   ImagePlus,
 } from "lucide-react";
-
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 
-import { app } from "@/firebase";
-import { getFirestore } from "firebase/firestore";
-import { addDoc, collection, DocumentReference } from "firebase/firestore";
+import CreatePost from "@/services/CreatePosts";
 import { type PostSchema, postSchema } from "../schema";
 
 const NewPost = () => {
-  const storage = getFirestore(app);
-
   const { register, handleSubmit, setValue } = useForm<PostSchema>({
     resolver: zodResolver(postSchema),
     defaultValues: {
@@ -42,28 +36,12 @@ const NewPost = () => {
     },
   });
 
-  async function savePost(
-    data: PostSchema
-  ): Promise<DocumentReference<PostSchema>> {
-    try {
-      const docRef = await addDoc(collection(storage, "posts"), {
-        ...data,
-        publishedAt: new Date(),
-      });
-      console.log("Post salvo com ID:", docRef.id);
-      return docRef as DocumentReference<PostSchema>;
-    } catch (error) {
-      console.error("Erro ao salvar post:", error);
-      throw error;
-    }
-  }
-
   const submit = async (data: PostSchema) => {
     console.log("foi");
     const json = editor?.getJSON();
     data.content = json;
     try {
-      await savePost(data);
+      await CreatePost(data);
       alert("Publicação salva com sucesso!");
     } catch (error) {
       alert("Erro ao salvar publicação.");

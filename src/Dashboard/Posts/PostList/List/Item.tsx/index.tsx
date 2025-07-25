@@ -1,7 +1,7 @@
-import type { Post } from "@/types";
 import { Link } from "react-router-dom";
+import { type PostSchema } from "@/Dashboard/Posts/schema";
 
-const Item = ({ data }: { data: Post }) => {
+const Item = ({ data }: { data: PostSchema }) => {
   return (
     <div className="">
       <div className="">
